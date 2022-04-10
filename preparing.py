@@ -673,54 +673,13 @@ def OnehotX(x):
                 else:
                     new_x[w, i, j, int(x[w, i, j])] = 1
     return new_x
-
 #=============
-def ResNet18(self):
-	input = Input(self.shape)
-	x = ZeroPadding2D((3,3))(input)
-	x = Conv2D(64,(7,7),strides=2)(x)
-	x = BatchNormalization(axis = 3)(x)
-	x = Activation('relu')(x)
-	x = MaxPool2D(pool_size=(3,3),strides = (2,2),padding='same')(x)
-	x = self.basic_block(x,64,1,name='shortcut1')
-	x = self.basic_block(x,64,1,name='shortcut2')
-	x = self.basic_block(x, 128, 2,name='shortcut3')
-	x = self.basic_block(x, 128, 1,name='shortcut4')
-	x = self.basic_block(x, 256, 2,name='shortcut5')
-	x = self.basic_block(x, 256, 1,name='shortcut6')
-	x = self.basic_block(x, 512, 2,name='shortcut7')
-	x = self.basic_block(x, 512, 1,name='shortcut8')
-	size = int(x.shape[1])
-	x = AveragePooling2D(pool_size=(size,size))(x)
-	x = Flatten()(x)
-	x = Dense(8,activation='softmax')(x)
-	model = Model(inputs = input,outputs=x)
-	model.compile(loss = 'categorical_crossentropy',optimizer='Adam',metrics=['accuracy'])
-	return model
-
-def ResNet50(self):
-	input = Input(self.shape)
-	x = ZeroPadding2D((3,3))(input)
-	x = Conv2D(64,(7,7),strides=(2,2))(x)
-	x = BatchNormalization(axis = 3)(x)
-	x = Activation('relu')(x)
-	x = MaxPool2D(pool_size =(3,3),strides=(2,2),padding='same')(x)
-	x = self.convolutional_block(x,[64,64,256],stride=1)
-	x = self.identity_block(x,[64,64,256])
-	x = self.convolutional_block(x,[128,128,512],stride=1)
-	x = self.identity_block(x,[128,128,512])
-	x = self.convolutional_block(x,[256,256,1024],stride=2)
-	x = self.identity_block(x,[256,256,1024])
-	x = self.convolutional_block(x,[512,512,2048],stride=2 )
-	x = self.identity_block(x,[512,512,2048])
-	size = int(x.shape[1])
-	x = AveragePooling2D(pool_size=(size, size))(x)
-	x = Flatten()(x)
-	x = Dense(8,activation='softmax')(x)
-	model = Model(inputs = input,outputs= x)
-	model.compile(loss='categorical_crossentropy', optimizer='Adam', metrics=['accuracy'])
-	return model
-
+def DeOnehotX(gen_x):
+    x = np.zeros((len(gen_x),waferSizeX , waferSizeY))
+    for w in range(len(gen_x)):
+        for i in range(waferSizeX):
+            x[w, i]=gen_x[w][i].argmax(1) 
+    return x
 
 def remove_unwanted_x(model_name,remove_fail,org_x,org_y,remove_percent):
     '''
